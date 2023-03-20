@@ -1,16 +1,12 @@
 from ftplib import FTP
 import os
-import time
-from progressbar import *
-
-#ftp://ftp.merrbys.co.uk/Data/L1B/2018-12/02/H18/
-#E:\GNSSR_DATA\TDS-1\L1B_Catalogue
-#ftp://ftp.merrbys.co.uk/Data/L1B_Catalogue/2018-12/01/H00/
 
 
 #########################################
 ###############L1B_Catalogue#############
 #########################################
+
+
 Year='2018'
 Month='12'
 Day='01'
@@ -23,7 +19,7 @@ directory = '/Data/L1B_Catalogue/'+Year+'-'+Month+'/'+Day+'/'+Product
 if not os.path.isdir(destdir):
 	os.makedirs(destdir)
 
-
+#Registration：http://merrbys.co.uk/data-access/registration
 userName = ''
 passWord = ''
 
