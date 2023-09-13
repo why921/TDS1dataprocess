@@ -1,6 +1,8 @@
 import shapefile
 from matplotlib import pyplot as plt
 import pyproj
+from mpl_toolkits.basemap import Basemap
+
 #"E:\why2023\CIS_SIGRID-3\Eastern_Arctic\2018\cis_SGRDREA_20180101T1800Z_pl_a\cis_SGRDREA_20180101T1800Z_pl_a.shp"
 file = shapefile.Reader("E:\why2023\CIS_SIGRID-3\Eastern_Arctic\\2018\cis_SGRDREA_20180101T1800Z_pl_a\cis_SGRDREA_20180101T1800Z_pl_a.shp")#读取
 
@@ -32,10 +34,16 @@ p=pyproj.Proj('+proj=lcc +lon_0=-100 +lat_0=40 +lat_1=49 +lat_2=77 +ellps=WGS84'
 
 lon, lat = p(x, y, inverse=True)
 
-print(lon,lat)
+print(lon)
 
-fig, ax = plt.subplots()
-plt.plot(x, y, color='#6666ff', label='fungis')
-ax.grid()
-ax.axis('equal')
+m = Basemap(width=12000000,height=12000000,projection='lcc',lat_0=40,lon_0=-100,lat_1=49,lat_2=77,resolution=None)
+#m.bluemarble()
+m.etopo()
+#m.tissot(70,80,1,100,facecolor='red',zorder=10)
+#m.scatter(75.2,85.3,s=100,marker='o',color='#FF5600')
+
+xpt, ypt = m(lon, lat)
+
+m.plot(xpt,ypt,'r')
+
 plt.show()
