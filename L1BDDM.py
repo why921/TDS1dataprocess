@@ -1,3 +1,4 @@
+import glob
 import netCDF4 as nc
 from netCDF4 import Dataset
 import xarray as xr
@@ -6,8 +7,6 @@ import numpy as np
 import os
 
 #E:\GNSSR_DATA\TDS-1\L1B\2018-12\01\H00
-
-
 
 
 def DDMs(DDMs_path, numpy_path):
@@ -29,14 +28,17 @@ def lonlat(meta_path, lonlat_path):
         lon=group2.variables['SpecularPointLon'][:].data
         lonlat=np.array([lon, lat])
         path=lonlat_path+'\\'+group_name+'.npy'
+        path2=lonlat_path+'\\'+group_name+'.txt'
         np.save(path, lonlat, allow_pickle=True, fix_imports=True)
+        np.savetxt(path2, lonlat.T)
+
 
 
 
 if __name__ == "__main__":
     Year = '2018'
-    Month = '12'
-    Day = '01'
+    Month = '04'
+    Day = '30'
     Product = 'H00'
     dir_ddm='E:\GNSSR_DATA\TDS-1\DDM_numpy\\'+Year+Month+'\\'+Day+'\\'+Product
     dir_lonlat='E:\GNSSR_DATA\TDS-1\lonlat_numpy\\'+Year+Month+'\\'+Day+'\\'+Product
@@ -46,5 +48,14 @@ if __name__ == "__main__":
         os.makedirs(dir_lonlat)
     DDMs_path = r'E:\GNSSR_DATA\TDS-1\L1B\\'+Year+'-'+Month+'\\'+Day+'\\'+Product+'\\'+'DDMs.nc'
     metadata_path = r'E:\GNSSR_DATA\TDS-1\L1B\\'+Year+'-'+Month+'\\'+Day+'\\'+Product+'\\'+'metadata.nc'
-    DDMs(DDMs_path,dir_lonlat)
+
+    DDMs(DDMs_path,dir_ddm)
     lonlat(metadata_path, dir_lonlat)
+
+
+    #生成GMT代码，绘制TDS轨迹，经纬度
+    file = glob.glob(dir_lonlat+"\\*.txt")
+    with open('E:\GNSSR_DATA\TDS-1\lonlat_numpy\\'+Year+Month+'\\'+Day+'\\'+Product+'.txt', "a") as file1:
+        for i in range(0, len(file)):
+            f1 = file[i]
+            file1.write('gmt plot '+str(f1)+' -Sc0.05 -Gred -W'+"\n")

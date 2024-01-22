@@ -17,6 +17,9 @@ m.shadedrelief()
 #m.scatter(75.2,85.3,s=100,marker='o',color='#FF5600')
 lon=lonlat[0,:]
 lat=lonlat[1,:]
+
+
+
 xpt, ypt = m(lon, lat)
 m.plot(xpt,ypt,'r')
 
