@@ -18,17 +18,17 @@ num=len(border)
 
 # "E:\GNSSR_DATA\TDS-1\lonlat_numpy\201804\30\H00\000013.txt"E:\GNSSR_DATA\TDS-1\label
 # E:\GNSSR_DATA\TDS-1\DDM_numpy\201804\30\H00
-
+Area='EA'
 Year = '2018'
 Month = '04'
 Day = '30'
 Product = 'H00'
-Num='15'
+Num='37'
 
-file = open('E:\GNSSR_DATA\TDS-1\label\\'+Year+Month+Day+Product+'_'+Num+'.txt','w')
+file = open('E:\GNSSR_DATA\TDS-1\label\\'+Area+'\\'+Year+Month+Day+Product+'_'+Num+'.txt','w')
 
 for idborder in range(len(border)):
-    with open('E:\GNSSR_DATA\TDS-1\lonlat_numpy\\'+Year+Month+'\\'+Day+'\\'+Product+'\\'+'0000'+Num+'.txt', "r") as filetxt, open('E:\GNSSR_DATA\TDS-1\label\\'+Year+Month+Day+Product+'_'+Num+'.txt', "a") as filelabel:
+    with open('E:\GNSSR_DATA\TDS-1\lonlat_numpy\\'+Year+Month+'\\'+Day+'\\'+Product+'\\'+'0000'+Num+'.txt', "r") as filetxt, open('E:\GNSSR_DATA\TDS-1\label\\'+Area+'\\'+Year+Month+Day+Product+'_'+Num+'.txt', "a") as filelabel:
         lonlat = np.loadtxt(filetxt)
         print(len(lonlat))
         print(idborder)

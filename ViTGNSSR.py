@@ -4,9 +4,11 @@ https://github.com/rwightman/pytorch-image-models/blob/master/timm/models/vision
 """
 from functools import partial
 from collections import OrderedDict
-
+from tensorboardX import SummaryWriter
+from torchviz import make_dot
 import torch
 import torch.nn as nn
+
 
 
 def drop_path(x, drop_prob: float = 0., training: bool = False):
@@ -44,10 +46,10 @@ class PatchEmbed(nn.Module):
     """
     2D Image to Patch Embedding
     """
-    def __init__(self, img_size=224, patch_size=16, in_c=3, embed_dim=768, norm_layer=None):
+    def __init__(self, img_sizeH,img_sizeW, patch_sizeH=1,patch_sizeW=128, in_c=1, embed_dim=128, norm_layer=None):
         super().__init__()
-        img_size = (img_size, img_size)
-        patch_size = (patch_size, patch_size)
+        img_size = (img_sizeH, img_sizeW)
+        patch_size = (patch_sizeH, patch_sizeW)
         self.img_size = img_size
         self.patch_size = patch_size
         self.grid_size = (img_size[0] // patch_size[0], img_size[1] // patch_size[1])
@@ -162,8 +164,8 @@ class Block(nn.Module):
 
 
 class VisionTransformer(nn.Module):
-    def __init__(self, img_size=224, patch_size=16, in_c=3, num_classes=1000,
-                 embed_dim=768, depth=12, num_heads=12, mlp_ratio=4.0, qkv_bias=True,
+    def __init__(self, img_sizeH=20,img_sizeW=128, patch_sizeH=1,patch_sizeW=128, in_c=1, num_classes=10,
+                 embed_dim=128, depth=12, num_heads=12, mlp_ratio=4.0, qkv_bias=True,
                  qk_scale=None, representation_size=None, distilled=False, drop_ratio=0.,
                  attn_drop_ratio=0., drop_path_ratio=0., embed_layer=PatchEmbed, norm_layer=None,
                  act_layer=None):
@@ -194,7 +196,7 @@ class VisionTransformer(nn.Module):
         norm_layer = norm_layer or partial(nn.LayerNorm, eps=1e-6)
         act_layer = act_layer or nn.GELU
 
-        self.patch_embed = embed_layer(img_size=img_size, patch_size=patch_size, in_c=in_c, embed_dim=embed_dim)
+        self.patch_embed = embed_layer(img_sizeH=img_sizeH, img_sizeW=img_sizeW,patch_sizeH=patch_sizeH,patch_sizeW=patch_sizeW, in_c=in_c, embed_dim=embed_dim)
         num_patches = self.patch_embed.num_patches
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, embed_dim))
@@ -287,136 +289,37 @@ def _init_vit_weights(m):
         nn.init.ones_(m.weight)
 
 
-def vit_base_patch16_224(num_classes: int = 1000):
-    """
-    ViT-Base model (ViT-B/16) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-1k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    weights ported from official Google JAX impl:
-    链接: https://pan.baidu.com/s/1zqb08naP0RPqqfSXfkB2EA  密码: eu9f
-    """
-    model = VisionTransformer(img_size=224,
-                              patch_size=16,
-                              embed_dim=768,
-                              depth=12,
-                              num_heads=12,
-                              representation_size=None,
-                              num_classes=num_classes)
-    return model
-
-
-def vit_base_patch16_224_in21k(num_classes: int = 21843, has_logits: bool = True):
-    """
-    ViT-Base model (ViT-B/16) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    weights ported from official Google JAX impl:
-    https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_patch16_224_in21k-e5005f0a.pth
-    """
-    model = VisionTransformer(img_size=224,
-                              patch_size=16,
-                              embed_dim=768,
-                              depth=12,
-                              num_heads=12,
-                              representation_size=768 if has_logits else None,
-                              num_classes=num_classes)
-    return model
-
-
-def vit_base_patch32_224(num_classes: int = 1000):
-    """
-    ViT-Base model (ViT-B/32) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-1k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    weights ported from official Google JAX impl:
-    链接: https://pan.baidu.com/s/1hCv0U8pQomwAtHBYc4hmZg  密码: s5hl
-    """
-    model = VisionTransformer(img_size=224,
-                              patch_size=32,
-                              embed_dim=768,
-                              depth=12,
-                              num_heads=12,
-                              representation_size=None,
-                              num_classes=num_classes)
-    return model
-
-
-def vit_base_patch32_224_in21k(num_classes: int = 21843, has_logits: bool = True):
-    """
-    ViT-Base model (ViT-B/32) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    weights ported from official Google JAX impl:
-    https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_patch32_224_in21k-8db57226.pth
-    """
-    model = VisionTransformer(img_size=224,
-                              patch_size=32,
-                              embed_dim=768,
-                              depth=12,
-                              num_heads=12,
-                              representation_size=768 if has_logits else None,
-                              num_classes=num_classes)
-    return model
-
-
-def vit_large_patch16_224(num_classes: int = 1000):
-    """
-    ViT-Large model (ViT-L/16) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-1k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    weights ported from official Google JAX impl:
-    链接: https://pan.baidu.com/s/1cxBgZJJ6qUWPSBNcE4TdRQ  密码: qqt8
-    """
-    model = VisionTransformer(img_size=224,
-                              patch_size=16,
-                              embed_dim=1024,
-                              depth=24,
-                              num_heads=16,
-                              representation_size=None,
-                              num_classes=num_classes)
-    return model
-
-
-def vit_large_patch16_224_in21k(num_classes: int = 21843, has_logits: bool = True):
-    """
-    ViT-Large model (ViT-L/16) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    weights ported from official Google JAX impl:
-    https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_large_patch16_224_in21k-606da67d.pth
-    """
-    model = VisionTransformer(img_size=224,
-                              patch_size=16,
-                              embed_dim=1024,
-                              depth=24,
-                              num_heads=16,
-                              representation_size=1024 if has_logits else None,
-                              num_classes=num_classes)
-    return model
-
-
-def vit_large_patch32_224_in21k(num_classes: int = 21843, has_logits: bool = True):
-    """
-    ViT-Large model (ViT-L/32) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    weights ported from official Google JAX impl:
-    https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_large_patch32_224_in21k-9046d2e7.pth
-    """
-    model = VisionTransformer(img_size=128,
-                              patch_size=20,
-                              embed_dim=1024,
-                              depth=24,
-                              num_heads=16,
-                              representation_size=1024 if has_logits else None,
-                              num_classes=num_classes)
-    return model
-
-
-def vit_huge_patch14_224_in21k(num_classes: int = 21843, has_logits: bool = True):
-    """
-    ViT-Huge model (ViT-H/14) from original paper (https://arxiv.org/abs/2010.11929).
-    ImageNet-21k weights @ 224x224, source https://github.com/google-research/vision_transformer.
-    NOTE: converted weights not currently available, too large for github release hosting.
-    """
-    model = VisionTransformer(img_size=128,
-                              patch_size=128,
+def vit_base_patch128():
+    model = VisionTransformer(img_sizeH=20,
+                              img_sizeW=128,
+                              patch_sizeH=1,
+                              patch_sizeW=128,
                               embed_dim=128,
-                              depth=32,
-                              num_heads=16,
-                              representation_size=1280 if has_logits else None,
-                              num_classes=num_classes)
+                              depth=12,
+                              num_heads=8,
+                              representation_size=None,
+                              num_classes=10)
     return model
+
+
+def main():
+    net=vit_base_patch128()
+    tmp = torch.randn(100, 1, 20, 128)
+    out = net(tmp)
+    print(out.shape)
+
+
+if __name__ == '__main__':
+    main()
+    net = vit_base_patch128()
+    tmp = torch.randn(100, 1, 20, 128)
+    with SummaryWriter("./log", comment="sample_model_visualization") as sw:
+        sw.add_graph(net, tmp)
+
+    # 2. pt文件可视化
+    torch.save(net, "./log/modelviz.pt")
+
+    # 3. graphviz可视化
+    out = net(tmp)
+    g = make_dot(out)
+    g.render('modelviz', view=False)  # pdf
