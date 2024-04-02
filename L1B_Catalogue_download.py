@@ -12,9 +12,11 @@ Month='12'
 Day='01'
 Product='H12'
 
+destdirRoot='E:\GNSSR_DATA\TDS-1\L1B_Catalogue\\'
+directoryRoot='/Data/L1B_Catalogue/'
 
-destdir='E:\GNSSR_DATA\TDS-1\L1B_Catalogue\\'+Year+'-'+Month+'\\'+Day+'\\'+Product
-directory = '/Data/L1B_Catalogue/'+Year+'-'+Month+'/'+Day+'/'+Product
+destdir=destdirRoot+Year+'-'+Month+'\\'+Day+'\\'+Product
+directory = directoryRoot+Year+'-'+Month+'/'+Day+'/'+Product
 
 if not os.path.isdir(destdir):
 	os.makedirs(destdir)
