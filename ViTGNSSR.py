@@ -164,7 +164,7 @@ class Block(nn.Module):
 
 
 class VisionTransformer(nn.Module):
-    def __init__(self, img_sizeH=20,img_sizeW=128, patch_sizeH=1,patch_sizeW=128, in_c=1, num_classes=10,
+    def __init__(self, img_sizeH=20,img_sizeW=128, patch_sizeH=1,patch_sizeW=128, in_c=1, num_classes=4,
                  embed_dim=128, depth=12, num_heads=12, mlp_ratio=4.0, qkv_bias=True,
                  qk_scale=None, representation_size=None, distilled=False, drop_ratio=0.,
                  attn_drop_ratio=0., drop_path_ratio=0., embed_layer=PatchEmbed, norm_layer=None,
@@ -298,7 +298,7 @@ def vit_base_patch128():
                               depth=12,
                               num_heads=8,
                               representation_size=None,
-                              num_classes=10)
+                              num_classes=4)
     return model
 
 
@@ -312,14 +312,14 @@ def main():
 if __name__ == '__main__':
     main()
     net = vit_base_patch128()
-    tmp = torch.randn(100, 1, 20, 128)
+    tmp = torch.randn(10000, 1, 20, 128)
     with SummaryWriter("./log", comment="sample_model_visualization") as sw:
         sw.add_graph(net, tmp)
 
     # 2. pt文件可视化
-    torch.save(net, "./log/modelviz.pt")
+   # torch.save(net, "./log/modelviz.pt")
 
     # 3. graphviz可视化
-    out = net(tmp)
-    g = make_dot(out)
-    g.render('modelviz', view=False)  # pdf
+   # out = net(tmp)
+   # g = make_dot(out)
+   # g.render('modelviz', view=False)  # pdf
