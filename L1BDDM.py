@@ -39,7 +39,7 @@ if __name__ == "__main__":
     Year = '2018'
     Month = '04'
     Day = '30'
-    Product = 'H00'
+    Product = 'H12'
     dir_ddm='E:\GNSSR_DATA\TDS-1\DDM_numpy\\'+Year+Month+'\\'+Day+'\\'+Product
     dir_lonlat='E:\GNSSR_DATA\TDS-1\lonlat_numpy\\'+Year+Month+'\\'+Day+'\\'+Product
     if not os.path.isdir(dir_ddm):
@@ -58,4 +58,4 @@ if __name__ == "__main__":
     with open('E:\GNSSR_DATA\TDS-1\lonlat_numpy\\'+Year+Month+'\\'+Day+'\\'+Product+'.txt', "a") as file1:
         for i in range(0, len(file)):
             f1 = file[i]
-            file1.write('gmt plot '+str(f1)+' -Sc0.05 -Gred -W'+"\n")
+            file1.write('gmt plot '+str(f1)+' -GGOLD -W0.01p,GOLD'+"\n")
